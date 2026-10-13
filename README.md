@@ -1,0 +1,65 @@
+# 月迷津渡（Close Reading of Classical Poetry）
+
+孙绍振 著 · 上海教育出版社 · 2015 年（修订版）
+
+本项目将《月迷津渡——古典诗词个案微观分析（修订版）》PDF 经 [MinerU](https://github.com/opendatalab/MinerU) 双模式（pipeline / vlm）交叉识别、人工校对后排版为 Markdown，再由 pandoc 构建 EPUB 3 电子书。全书含《美国"新批评"细读批判》等自序、近百篇经典诗词个案微观分析及"古典诗歌宏观解读发微"专章，以脚注和诗词选文为主要排版特征。
+
+## 文件结构
+
+| 文件 | 说明 |
+| --- | --- |
+| `manuscript/00-frontmatter.md` | 前置部分（书名页、出版信息等） |
+| `manuscript/*.md` | 自序及各章正文（**所有修改都在对应文件里进行**），构建时按文件名序合并 |
+| `metadata.yaml` | pandoc 元数据（书名、作者、语言） |
+| `assets/epub.css` | EPUB 样式（正文用阅读器默认字体；标题黑体 / 选文楷体 / 扉页仿宋，字体栈取自 [fonts.css](https://github.com/zenozeng/fonts.css) 跨平台方案） |
+| `assets/cover.jpg` | 封面图（可选，存在即自动嵌入） |
+| `scripts/ocr.sh` | MinerU 双模式分片识别（200 页/片，断点续跑） |
+| `scripts/build.sh` | pandoc 构建脚本（`--split-level=2` 按节拆分文件即硬分页；CSS 剥注释后打包，兼容 Clearview） |
+| `scripts/ascii-heading-ids.lua` | pandoc Lua 过滤器：标题锚点改写为 ASCII 序号（sec-N），否则中文锚点在 Clearview 等阅读器中目录无法跳转 |
+| `scripts/chapter-titlepage.lua` | pandoc Lua 过滤器：给「第X章」标题加 `.zhang` 类，章扉页排为竖排题签样式 |
+| `Makefile` | `make build` 构建，`make ocr` 识别，`make clean` 清理 |
+| `docs/workflow.md` | OCR 交叉校对流程与 Markdown 书写约定的完整说明 |
+| `月迷津渡.epub` | 构建产物（不入库，见 Releases） |
+
+原始 PDF 与 OCR 中间结果（`source/`、`ocr/`）不入库，请自行准备。
+
+## 下载
+
+每次打 tag 都会由 GitHub Actions 自动构建 EPUB 并发布到 Releases：
+
+- [下载最新版 EPUB](https://github.com/syhily/close-reading-of-classical-poetry/releases/latest)
+- [查看全部版本](https://github.com/syhily/close-reading-of-classical-poetry/releases)
+
+## 构建
+
+```sh
+make build    # 生成 build/月迷津渡.epub
+make clean    # 删除构建产物
+```
+
+只依赖 [pandoc](https://pandoc.org)。OCR 环节另需 `mineru-open-api`（`npm install -g mineru-open-api`）及 token，详见 `docs/workflow.md`。
+
+## 参与校对与修改
+
+欢迎通过 Issue 或 Pull Request 指正 OCR 讹误与排版问题。修改 `manuscript/` 对应文件后运行 `make build` 重建即可。Markdown 中的排版约定（详见 `docs/workflow.md`）：
+
+- `# 第X章 …`：章标题（独立章扉页，竖排题签样式）；`## …`：节标题（居中黑体，独立成页）；`### …`：作品标题（居中黑体；末尾作者名写 `[作者]{.zuozhe}`，排小一号楷体）；`#### …`：节内小标题（靠左黑体，不进目录）
+- `> 文字`：词、曲等按段排版的选文/引文（楷体缩进）
+- `> | 诗行`：需逐行换行但换行不是分段的选文（行块内嵌块引用，楷体缩进）
+- `| 诗行`：诗歌选文（行块，每句一行、整体缩进，楷体）；需要整体居中时用 `::: {.poem}` 包裹行块
+- `::: {.xuanwen}`：长篇选文（含标题、多段落的作品原文）
+- `[文字]{.zhuozhong}`：着重号（字下圆点，原书表示关键概念的方式）
+- `[——读者]{.qianming}`：落款、署名（居右）
+- `文字^[脚注内容]`：行内脚注（EPUB 3 弹注；不用 `[^n]` 编号式，避免多页合并时编号错位）
+- `**文字**`：黑体强调；`*文字*`：楷体（中文不倾斜）
+- `::: {.fangsong}`：扉页信息、题辞、出版说明（仿宋）
+- 拿不准的字，加 HTML 注释 `<!-- 疑：原书作「x」 -->` 留待复核
+
+## 致谢
+
+- `assets/epub.css` 的跨平台中文字体栈来自 [fonts.css](https://github.com/zenozeng/fonts.css)，Copyright (C) 2013-2018 Zeno Zeng and contributors，[MIT License](https://github.com/zenozeng/fonts.css/blob/main/LICENSE)。
+- `assets/epub.css` 的部分排版规则（CJK 换行禁则、悬挂标点、上下标归一、引号等）借鉴 [typo.css](https://github.com/sofish/typo.css)，Copyright (C) 2012 Sofish Lin，[MIT License](https://github.com/sofish/typo.css/blob/master/license.txt)。
+
+## 免责声明
+
+本书著作权归原作者及上海教育出版社所有。本项目仅供个人学习与研究使用，不进行任何商业用途，不用于任何形式的再出版。OCR 识别与人工校对可能存在讹误，内容请以上海教育出版社纸质原书为准。若本仓库内容涉及侵权，请联系仓库所有者，核实后将立即删除。
