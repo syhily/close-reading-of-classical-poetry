@@ -259,82 +259,28 @@ h1 {
   margin: 3em 0 1.8em;
 }
 
-/* 章扉页古籍封面（h1.zhang，由 chapter-titlepage.lua 标记并拆分「第X章」标题，
-   --split-level=2 下该页只有章题）：瓷青书面为底，左上贴白色竖排题签
-   （双线界栏、小字「第X章」+ 大字章题），右侧线装装订线，右下作者小字款。
-   降级链：不支持 :has → 无瓷青底板与装订线，仅竖排题签条；不支持竖排 → 横排题签 */
-section.level1:has(> h1.zhang) {
-  position: relative;
-  margin: 4% 6%;
-  padding: 3em 0;
-  background: #33415c;
-  border: 1px solid #26354e;
-  text-align: left;
-}
-
-/* 线装装订线：竖线距封面右缘 2.4em、贯穿封面整个高度；
-   横针脚从竖线开始向右延伸，直至封面边缘（伪元素多重背景绘制，无图片） */
-section.level1:has(> h1.zhang)::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  right: 0;
-  width: 2.4em;
-  background:
-    linear-gradient(#cfc7b4, #cfc7b4) left center / 1.5px 100% no-repeat,
-    repeating-linear-gradient(to bottom, #cfc7b4, #cfc7b4 1.5px, transparent 1.5px, transparent 6em)
-      left 3em / 100% 100% no-repeat;
-}
-
-/* 题签：白底竖排章题，三层框线仿线装书题签——
-   内框（border）+ 隔一线隙的中框（outline）+ 外圈晕边与细线（box-shadow），
-   每层独立生效，某层不被支持时其余层仍在 */
+/* 章扉页（h1.zhang，由 chapter-titlepage.lua 标记并拆分「第X章」标题，
+   --split-level=2 下该页只有章题）：最大兼容方案——居中横排宋体，
+   「第X章」小字独占一行置于章题上方。不用 :has、竖排、绝对定位、
+   伪元素等特性（Boox NeoReader 对旧的仿古籍封面方案渲染为空白页） */
 h1.zhang {
-  -webkit-writing-mode: vertical-rl;
-  writing-mode: vertical-rl;
-  -webkit-text-orientation: upright;
-  text-orientation: upright;
-  display: inline-block;
-  vertical-align: top;
   font-family: "Songti SC", STSong, "Noto Serif CJK SC", "Source Han Serif SC",
-    "Source Han Serif CN", "Noto Serif SC", SimSun, NSimSun, "AR PL UMing CN",
-    "TW-Sung", Georgia, "Nimbus Roman No9 L", PMingLiU, MingLiU, serif;
+    "Source Han Serif CN", "Noto Serif SC", SimSun, NSimSun, "AR PL New Sung",
+    "AR PL SungtiL GB", "AR PL UMing CN", "AR PL UMing HK", "AR PL UMing TW",
+    "AR PL UMing TW MBE", "TW-Sung", "WenQuanYi Bitmap Song",
+    Georgia, "Nimbus Roman No9 L", PMingLiU, MingLiU, serif;
   font-size: 1.75em;
-  letter-spacing: 0.22em;
-  line-height: 1.35;
-  text-align: left;
-  color: #2b2b2b;
-  background: #f7f3e8;
-  border: 1px solid #8a8272;
-  outline: 1px solid #8a8272;
-  outline-offset: 3px;
-  box-shadow: 0 0 0 6px #f7f3e8, 0 0 0 7px #8a8272;
-  padding: 1.3em 1.3em;
-  margin: 0 0 0 10%;
-  position: relative;
-}
-
-/* 「第X章」小字：题签上部，与章题大字分层 */
-h1.zhang .juanshu {
-  font-size: 0.5em;
-  letter-spacing: 0.3em;
-  color: #6b6255;
-}
-
-/* 题签左下角落款：竖排黑色仿宋（古籍封面作者款的位置）。
-   不支持绝对定位的阅读器退化为跟在竖排章题末尾，仍自然 */
-h1.zhang::after {
-  content: "孙绍振　著";
-  position: absolute;
-  left: 0.4em;
-  bottom: 0.6em;
-  font-family: STFangsong, FangSong, FangSong_GB2312, "AR PL FangSong2 GB",
-    "AR PL Fangsong", Baskerville, "Times New Roman", "Liberation Serif",
-    "Songti SC", SimSun, serif;
-  font-size: 0.42em;
   letter-spacing: 0.15em;
-  color: #333;
+  margin-top: 4em;
+}
+
+/* 「第X章」小字独占一行，置于章题上方 */
+h1.zhang .juanshu {
+  display: block;
+  font-size: 0.55em;
+  letter-spacing: 0.3em;
+  color: #555;
+  margin-bottom: 1.2em;
 }
 
 /* 二级：节标题（如「前言：夏天为什么缺乏诗意经典」），原书为居中黑体 */
@@ -439,6 +385,8 @@ blockquote strong, .xuanwen strong {
 }
 .line-block {
   margin: 0.6em 0 0.6em 4em;
+  /* 诗行不带首行缩进（部分阅读器会对 <br> 之后的行套缩进） */
+  text-indent: 0;
 }
 /* 块引用内的行块：选文缩进已由 blockquote 提供，不再叠加 4em 缩进 */
 blockquote .line-block {
@@ -446,30 +394,43 @@ blockquote .line-block {
 }
 
 /* 居中诗块：用 ::: {.poem} 包裹行块。poem-stanzas.lua 会生成
-   .poem > .poem-inner > .stanza > .line-block 结构：
-   .poem-inner 是 inline-block，收缩到最宽诗节的宽度后随 text-align:center
-   整体居中；诗节为块级、共享同一条左边缘（节内左对齐）。
-   不用 flex（Clearview 支持不佳）、不用 display:table（Clearview 会给
-   表格样式的元素强制套用自带字体，覆盖楷体） */
+   .poem > .poem-inner > .stanza > .line-block 结构。
+   收缩居中：.poem-inner 用 display:table + margin:0 auto 收缩到
+   最宽诗节后整体居中，诗行 text-align:left 共享同一条左边缘。
+   诗作题已由 poem-title.lua 挪出诗块，.poem 内不再有标题段。
+   兼容性取舍：不用 inline-block（Boox NeoReader 的 shrink-to-fit 会把
+   诗块压成一字宽、整诗一行一字，且无视 white-space:nowrap）、不用 flex
+   （Clearview 支持不佳）、不用 :has；display:table 是 CSS2.1 核心特性，
+   Boox Note 与 Clearview 均支持。Clearview 对 table 元素强制套自带字体，
+   由下方 !important 楷体规则夺回。极老阅读器若不支持 table，则退化为
+   整块靠左、行首对齐，仍可读。 */
 .poem {
-  text-align: center;
   margin: 0.8em 0;
 }
-.poem .poem-inner {
-  display: inline-block;
+.poem-inner {
+  display: table;
+  margin: 0 auto;
   text-align: left;
 }
+/* 节间距用 padding 而非 margin：table 布局里匿名单元格之间的 margin
+   会被忽略，而块元素在单元格内部的 padding 各引擎都可靠 */
 .poem .stanza {
-  margin: 0.4em 0;
+  margin: 0;
+  padding: 0 0 0.4em;
+}
+.poem .stanza:last-child {
+  padding-bottom: 0;
 }
 .poem .line-block {
   text-align: left;
   margin: 0;
 }
 
-/* Clearview 等阅读器内置样式表对 .poem 类自带字体声明，会覆盖上面的楷体；
-   用更高优先级夺回字体（仅限诗块，不影响阅读器全局字体设置） */
-.poem, .poem .line-block, .poem p {
+/* Clearview 等阅读器内置样式表对 .poem 类自带字体声明，且对 table
+   布局元素强制套自带字体，都会覆盖上面的楷体；用更高优先级夺回字体
+   （仅限诗块，不影响阅读器全局字体设置）。.poem-inner 是 display:table
+   的元素，必须显式声明才能压过 Clearview 的表格字体 */
+.poem, .poem-inner, .poem .stanza, .poem .line-block, .poem p {
   font-family: "Kaiti SC", STKaiti, "AR PL UKai CN", "AR PL UKai HK",
     "AR PL UKai TW", "AR PL UKai TW MBE", "AR PL KaitiM GB", KaiTi,
     KaiTi_GB2312, DFKai-SB, "TW-Kai", Baskerville, Georgia, "Liberation Serif", serif !important;
@@ -492,6 +453,12 @@ blockquote .line-block {
     "Noto Sans CJK SC", "Source Han Sans SC", "Source Han Sans CN",
     "Microsoft YaHei", "Wenquanyi Micro Hei", "WenQuanYi Zen Hei",
     "ST Heiti", SimHei, "WenQuanYi Zen Hei Sharp", sans-serif !important;
+}
+
+/* 选文块内的诗作题（::: {.xuanwen} 首段加粗标题，如「**陌上桑**」，
+   由 xuanwen-title.lua 包为 .shiti Div）：与短诗块诗作题一致，居中 */
+.shiti {
+  text-align: center;
 }
 
 /* 着重号：原书在字下加点（如“谁知”）。只加字下点，不改字体——
@@ -537,6 +504,23 @@ blockquote .line-block {
 .fangsong, .frontmatter-info {
   font-family: Baskerville, "Times New Roman", "Liberation Serif", STFangsong,
     FangSong, FangSong_GB2312, "CWTEX-F", serif;
+}
+
+/* ---------- 插图（卷首手迹、照片等扫描图版） ---------- */
+
+/* 本书内嵌图片均为整页图版（配合 \newpage 拆出的独立 xhtml），
+   全局规则：居中并限制在视口高度内，保证一页完整显示不溢出 */
+img {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  max-height: 86vh;
+}
+
+/* 图注不显示（插图说明只保留在 alt 属性中供读屏软件使用；
+   pandoc 已给重复 alt 的 figcaption 加 aria-hidden） */
+figcaption {
+  display: none;
 }
 
 /* ---------- 电子版说明与免责声明（居中卡片） ---------- */

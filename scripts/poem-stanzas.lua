@@ -3,9 +3,14 @@
 --    裸行块拆分后靠各自的上下 margin 形成节间距（古诗中间分段）；
 -- 2) ::: {.poem} 的内容包两层：
 --    内层每个诗节包块级 div.stanza —— 强制独占一行、节间留白；
---    全部诗节再包进一个 div.poem-inner（CSS 设为 inline-block）—— 收缩到
---    最宽诗节的宽度后整体居中，所有诗节共享同一条左边缘（节内左对齐）。
--- 不用 flex（Clearview 支持不佳）、不用 display:table（Clearview 会强制套自带字体覆盖楷体）。
+--    全部诗节再包进一个 div.poem-inner（普通块级容器）。
+--    收缩居中由 CSS 的 .poem-inner{display:table;margin:0 auto} 实现，
+--    诗行 text-align:left 共享左边缘；不用 inline-block（Boox 压成一字宽）、
+--    不用 flex（Clearview 支持不佳）。
+-- 3) EPUB 输出时把行块整体序列化成单行原始 HTML（<br /> 之后不留换行）：
+--    pandoc 默认在 <br /> 后输出换行符，Boox 等阅读器会把换行折叠出的空格
+--    渲染在行首（或对 <br /> 之后的行套首行缩进），导致除第一行外所有诗行
+--    统一向右偏移；单行输出行首无任何空白，各阅读器表现一致。
 local function split_line_block(lb)
   local parts, cur = {}, {}
   for _, line in ipairs(lb.content) do
@@ -52,4 +57,27 @@ function LineBlock(el)
     table.insert(out, pandoc.LineBlock(part))
   end
   return out
+end
+
+local function line_block_to_raw(lb)
+  local parts = {}
+  for i, line in ipairs(lb.content) do
+    if i > 1 then
+      table.insert(parts, "<br />")
+    end
+    local html = pandoc.write(pandoc.Pandoc({ pandoc.Plain(line) }), "html", { wrap_text = "wrap-none" })
+    table.insert(parts, (html:gsub("^%s+", ""):gsub("%s+$", "")))
+  end
+  return pandoc.RawBlock("html", '<div class="line-block">' .. table.concat(parts) .. "</div>")
+end
+
+function Pandoc(doc)
+  if not FORMAT:match("epub") then
+    return nil
+  end
+  return doc:walk({
+    LineBlock = function(lb)
+      return line_block_to_raw(lb)
+    end,
+  })
 end

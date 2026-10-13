@@ -28,12 +28,18 @@ pandoc metadata.yaml "${chapters[@]}" \
   --from markdown+footnotes+inline_notes+fenced_divs+smart \
   --to epub3 \
   --split-level=2 \
+  --lua-filter=scripts/newpage.lua \
   --lua-filter=scripts/ascii-heading-ids.lua \
   --lua-filter=scripts/chapter-titlepage.lua \
+  --lua-filter=scripts/poem-title.lua \
   --lua-filter=scripts/poem-stanzas.lua \
+  --lua-filter=scripts/xuanwen-title.lua \
   --lua-filter=scripts/pangu.lua \
   --css "$stripped_css" \
   "${cover_opt[@]}" \
   -o "build/月迷津渡.epub"
+
+# 目录条目改写为「作者《篇名》」（正文标题仍为「篇名[作者]」）
+python3 scripts/fix-nav.py "build/月迷津渡.epub"
 
 echo "已生成 build/月迷津渡.epub"

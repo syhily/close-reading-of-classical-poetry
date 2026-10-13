@@ -12,7 +12,7 @@ endif
 
 build: $(EPUB)
 
-$(EPUB): metadata.yaml $(MANUSCRIPT) assets/epub.css scripts/build.sh scripts/ascii-heading-ids.lua scripts/chapter-titlepage.lua scripts/poem-stanzas.lua scripts/pangu.lua $(COVER)
+$(EPUB): metadata.yaml $(MANUSCRIPT) assets/epub.css scripts/build.sh scripts/newpage.lua scripts/ascii-heading-ids.lua scripts/chapter-titlepage.lua scripts/poem-title.lua scripts/poem-stanzas.lua scripts/xuanwen-title.lua scripts/pangu.lua scripts/fix-nav.py $(COVER)
 	@bash scripts/build.sh
 
 ocr:
