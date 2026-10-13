@@ -16,7 +16,7 @@
 | `scripts/ocr.sh` | MinerU 双模式分片识别（200 页/片，断点续跑） |
 | `scripts/build.sh` | pandoc 构建脚本（`--split-level=2` 按节拆分文件即硬分页；CSS 剥注释后打包，兼容 Clearview） |
 | `scripts/ascii-heading-ids.lua` | pandoc Lua 过滤器：标题锚点改写为 ASCII 序号（sec-N），否则中文锚点在 Clearview 等阅读器中目录无法跳转 |
-| `scripts/chapter-titlepage.lua` | pandoc Lua 过滤器：给「第X章」标题加 `.zhang` 类，章扉页排为竖排题签样式 |
+| `scripts/chapter-titlepage.lua` | pandoc Lua 过滤器：给「第X章」标题加 `.zhang` 类，章扉页排为居中宋体题字 |
 | `Makefile` | `make build` 构建，`make ocr` 识别，`make clean` 清理 |
 | `docs/workflow.md` | OCR 交叉校对流程与 Markdown 书写约定的完整说明 |
 | `月迷津渡.epub` | 构建产物（不入库，见 Releases） |
@@ -27,7 +27,7 @@
 
 每次打 tag 都会由 GitHub Actions 自动构建 EPUB 并发布到 Releases：
 
-- [下载最新版 EPUB](https://github.com/syhily/close-reading-of-classical-poetry/releases/latest)
+- [下载最新版 EPUB](https://github.com/syhily/close-reading-of-classical-poetry/releases/latest/download/close-reading-of-classical-poetry.epub)（直链，始终指向最新 Release）
 - [查看全部版本](https://github.com/syhily/close-reading-of-classical-poetry/releases)
 
 ## 构建
@@ -43,7 +43,7 @@ make clean    # 删除构建产物
 
 欢迎通过 Issue 或 Pull Request 指正 OCR 讹误与排版问题。修改 `manuscript/` 对应文件后运行 `make build` 重建即可。Markdown 中的排版约定（详见 `docs/workflow.md`）：
 
-- `# 第X章 …`：章标题（独立章扉页，竖排题签样式）；`## …`：节标题/作品分析标题（居中黑体，独立成页）；`### …`：主题下的作品标题（居中黑体，保持原书「作者《篇名》」语序，如「岑参《白雪歌送武判官归京》」）；`#### …`：节内小标题（靠左黑体，不进目录）
+- `# 第X章 …`：章标题（独立章扉页，居中宋体题字）；`## …`：节标题/作品分析标题（居中黑体，独立成页）；`### …`：主题下的作品标题（居中黑体，保持原书「作者《篇名》」语序，如「岑参《白雪歌送武判官归京》」）；`#### …`：节内小标题（靠左黑体，不进目录）
 - `::: {.poem}` 内首行 `**诗作题**`：作品原文的诗作题（居中黑体），诗行仍为居中楷体行块
 - `> 文字`：词、曲等按段排版的选文/引文（楷体缩进）
 - `> | 诗行`：需逐行换行但换行不是分段的选文（行块内嵌块引用，楷体缩进）
