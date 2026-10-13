@@ -481,6 +481,19 @@ blockquote .line-block {
   line-height: 1.8;
 }
 
+/* 诗块内的诗作题（::: {.poem} 里的加粗段落，如「**关雎**」）：
+   原书为居中黑体。诗行是 .line-block（div），.poem 内的 p 只会是诗作题 */
+.poem p {
+  text-align: center;
+}
+.poem strong {
+  font-family: -apple-system, "Noto Sans", "Helvetica Neue", Helvetica,
+    "Nimbus Sans L", Arial, "Liberation Sans", "PingFang SC", "Hiragino Sans GB",
+    "Noto Sans CJK SC", "Source Han Sans SC", "Source Han Sans CN",
+    "Microsoft YaHei", "Wenquanyi Micro Hei", "WenQuanYi Zen Hei",
+    "ST Heiti", SimHei, "WenQuanYi Zen Hei Sharp", sans-serif !important;
+}
+
 /* 着重号：原书在字下加点（如“谁知”）。只加字下点，不改字体——
    字体随上下文（正文默认字体、诗行楷体），否则楷体选文里的着重词会跳成黑体。
    两层实现：支持 text-emphasis 的阅读器用标准着重号；不支持的用 ::after
