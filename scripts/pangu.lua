@@ -44,6 +44,9 @@ local function edge_char(el, side)
       cps[#cps + 1] = cp
     end
     return side == "first" and cps[1] or cps[#cps]
+  elseif t == "Note" then
+    -- 脚注标记渲染为数字，按拉丁/数字类处理，使「中文^[注]」两侧加窄空格
+    return 48 -- '0'
   elseif t == "Emph" or t == "Strong" or t == "Underline" or t == "Strikeout"
     or t == "Superscript" or t == "Subscript" or t == "SmallCaps"
     or t == "Span" or t == "Link" or t == "Cite" or t == "Quoted" then
